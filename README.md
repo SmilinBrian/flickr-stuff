@@ -1,6 +1,8 @@
 # Flickr stuff #
 
-  A set of scripts and libraries for working with Flickr on a Macintosh. They all require [Sybren Stüvel’s FlickrAPI library][2].
+A set of scripts and libraries for working with Flickr on a Macintosh. They all require [Sybren Stüvel’s FlickrAPI library][2].
+
+This is based on [Dr. Drang's original version](https://github.com/drdrang/flickr-stuff), this adds the ability to get Markdown or HTML linked images via the `currentFlickrURL()` function, and adds a few more TextExpander snippets that use this ability.
 
 ## getFlickrToken ##
 
@@ -23,7 +25,7 @@ When snapflickr is run, it turns the cursor into a camera, ready to take a snaps
 
 By default, the snapshot is uploaded to your Flickr account, but if you click the "Local file only" checkbox, there's no upload. If the image is uploaded to Flickr, its page is opened in the default browser and an `<img>` tag for the chosen size is put on the clipboard.
 
-It requires [Carsten Blüm's Pashua application][1] and its accompanying Python library. The use is described in more detail [here][3]. It also requires the [Python Imaging Library][6] to add border around window screenshots. The border is set to 16 pixels and the standard Solid Aqua Dark Blue color from the Desktop system preference. These can be changed in the local parameters section at the top of the file.
+It requires [Carsten Blüm's Pashua application][1] and its accompanying Python library. The use is described in more detail [here][3]. It also requires the [Python Imaging Library][5] to add border around window screenshots. The border is set to 16 pixels and the standard Solid Aqua Dark Blue color from the Desktop system preference. These can be changed in the local parameters section at the top of the file.
 
 Also near the top of snapflickr is a section of Flickr parameters:
 
@@ -37,18 +39,27 @@ These must be customized with the appropriate username, API info, and Flickr set
 
 ## currentflickr.py ##
 
-This is a Python library for getting the name or certain types of URL for the Flickr image currently showing in your browser (works only for Safari and Chrome—sorry, Firefox users). In addition to the FlickrAPI library, it also requires the [appscript library][4], which allows Python to handle Apple Events (like AppleScript).
+This is a Python library for getting the name or certain types of URL for the Flickr image currently showing in your browser (works only for Safari). In addition to the FlickrAPI library, it also requires the `applescript.py` file to be somewhere that your Python installation can locate it. `applescript.py` uses OSAScript to run AppleScripts within Python.
 
-I use the currentFlickrURL function to make TextExpander shell snippets that return the URLs for various sizes of an image and also to return an image's short Flickr URL (http://flic.kr/p/xxxxx).
+The currentFlickrURL function can return the URLs for various sizes of an image, or return an image's short Flickr URL (http://flic.kr/p/xxxxx). Additionally, if `'md'` is supplied as the optional second parameter, the function returns a Markdown image reference within a link to the image's Flickr page, or if `'html'` is sent as the second parameter, it returns an HTML `\<img\>` tag surrounded by an `\<a\>` tag linking to the image's Flickr page.
+Eg. `currentFlickrURL('Medium','md')` returns something like:
 
-Near the top of currentflickr.py is a section of Flickr parameters:
+	[![Image Title](https://farmn.staticflickr.com/xxxxx.jpg)](https://www.flickr.com/photos/user/nnnnn/)
+
+and  `currentFlickrURL('Medium 800','html')` returns something like: 
+
+	<a href='https://www.flickr.com/photos/user/nnnnn/' title='Image Title'><img src='https://farmn.staticflickr.com/xxxxx.jpg' width='800' height='600'></a>`
+
+A couple of locations within `currentflickr.py` have sections of Flickr parameters:
 
     # Flickr parameters
     fuser = 'Flickr username'
     key = 'Get key from Flickr'
     secret = 'Get secret from Flickr'
 
-These must be customized with the appropriate username and API info.
+These must be customized with the appropriate username and API info and you should run the `getFlickrToken` script so that Python running on your system has the correct permissions to access your Flickr library.
+
+In order to use this in the TextExpander snippets described below, both `currentflickr.py` and `applescript.py` must be located somewhere that your Python installation can find it. I don't know much about Python, but putting the files into the `/Library/Python/2.7/site-packages` directory does the trick.
 
 ## Flickr.textexpander ##
 
@@ -58,7 +69,7 @@ This is a plist of TextExpander shell snippets for getting various Flickr URLs o
 
 A script that downloads the large version of the Flickr image currently showing in the browser window and saves it to the Desktop. The filename is the Flickr image title, with ".jpg" appended if necessary. This is intended to be called via FastScripts or a similar utility. It dings using the Glass sound if it succeeds and burps with the Basso sound if it fails.
 
-To play the sounds, the script requires the free [Play Sound utility][5] from Microcosm Software.
+To play the sounds, the script requires the free [Play Sound utility][4] from Microcosm Software.
 
 ## up2flickr ##
 
@@ -78,6 +89,5 @@ These must be customized with the appropriate username and API info.
 [1]: http://www.bluem.net/en/mac/pashua/
 [2]: http://stuvel.eu/flickrapi
 [3]: http://www.leancrew.com/all-this/2012/02/snapflickr-update/
-[4]: http://appscript.sourceforge.net/
-[5]: http://microcosmsoftware.com/playsound/
-[6]: http://www.pythonware.com/products/pil/
+[4]: http://microcosmsoftware.com/playsound/
+[5]: http://www.pythonware.com/products/pil/
